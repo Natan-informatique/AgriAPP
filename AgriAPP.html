@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AgriAPP — Gestion coopérative</title>
+<style>
+  :root{
+    --bg:#F5F0E8;
+    --bg2:#EDE7D9;
+    --card:#FFFFFF;
+    --fg:#1A1208;
+    --accent:#5C3D11;
+    --accent2:#8B6914;
+    --accent-light:#C9A96E;
+    --good:#2E6B3A;
+    --bad:#8B1A1A;
+    --cacao:#6B3A2A;
+    --hevea:#2E6B3A;
+    --anacarde:#8B6914;
+    --coton:#2A5C8B;
+    --cafe:#4A2E1A;
+    --radius:14px;
+    --shadow:0 2px 10px rgba(26,18,8,0.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    background:var(--bg);
+    color:var(--fg);
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior:none;
+  }
+  h1,h2,h3{font-family:Georgia,'Times New Roman',serif; margin:0;}
+  #app{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:var(--bg);
+    position:relative;
+    padding-bottom:74px;
+  }
+  /* ───── HEADER ───── */
+  .topbar{
+    background:var(--accent);
+    color:#fff;
+    padding:18px 20px 16px;
+    position:sticky;
+    top:0;
+    z-index:20;
+  }
+  .topbar .eyebrow{
+    font-size:11px;
+    letter-spacing:.06em;
+    color:var(--accent-light);
+    text-transform:uppercase;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .topbar h1{font-size:21px; margin-top:2px;}
+  .topbar .sub{font-size:12.5px; color:var(--accent-light); font-style:italic; margin-top:2px;}
+  .topbar .back{
+    position:absolute;
+    left:14px; top:16px;
+    background:rgba(255,255,255,.15);
+    border:none;
+    color:#fff;
+    width:34px;height:34px;
+    border-radius:50%;
+    font-size:18px;
+    cursor:pointer;
+  }
+  .culture-strip{
+    height:6px;
+    display:flex;
+    width:100%;
+  }
+  .culture-strip span{flex:1;}
+
+  /* ───── CONTENT ───── */
+  .screen{padding:18px 16px 24px; flex:1;}
+  .hidden{display:none !important;}
+
+  /* ───── ACCUEIL ───── */
+  .home-hero{
+    text-align:center;
+    padding:34px 20px 26px;
+  }
+  .home-hero .logo-wrap{
+    width:78px;height:78px;
+    margin:0 auto 12px;
+    border-radius:50%;
+    background:var(--bg2);
+    display:flex;align-items:center;justify-content:center;
+    font-size:34px;
+    overflow:hidden;
+    border:3px solid var(--accent-light);
+  }
+  .home-hero .logo-wrap img{width:100%;height:100%;object-fit:cover;}
+  .home-hero h1{font-size:26px;color:var(--accent);}
+  .home-hero .tag{color:var(--accent2); font-style:italic; font-size:13px; margin-top:4px;}
+  .culture-mosaic{
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+    padding:14px 14px 26px;
+  }
+  .culture-tile{
+    width:84px; height:78px; border-radius:12px; color:#fff;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:4px; overflow:hidden; position:relative; box-shadow:var(--shadow);
+  }
+  .culture-tile img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+  .culture-tile .tile-ic{font-size:24px; z-index:1;}
+  .culture-tile .tile-label{font-size:11px; font-weight:700; z-index:1; text-shadow:0 1px 3px rgba(0,0,0,.4);}
+  .culture-tile .tile-overlay{position:absolute; inset:0; background:rgba(0,0,0,0.15);}
+  #screen-accueil.has-bg-image{position:relative;}
+  #screen-accueil.has-bg-image::before{
+    content:""; position:fixed; inset:0; z-index:-1;
+    background-size:cover; background-position:center;
+  }
+  .accueil-card-overlay{
+    background:rgba(255,255,255,0.92); border-radius:18px; margin:14px; padding:6px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.12);
+  }
+  .big-actions{display:flex; flex-direction:column; gap:14px; padding:0 6px;}
+  .big-btn{
+    border:none; border-radius:var(--radius);
+    padding:20px; font-size:17px; font-weight:700;
+    color:#fff; cursor:pointer; display:flex; align-items:center; gap:14px;
+    box-shadow:var(--shadow);
+    font-family:inherit;
+  }
+  .big-btn .ic{font-size:26px;}
+  .big-btn.primary{background:var(--good);}
+  .big-btn.secondary{background:#3A3A3A;}
+
+  /* ───── CARDS / FORMS ───── */
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:18px;
+    box-shadow:var(--shadow);
+    margin-bottom:14px;
+  }
+  .card h3{color:var(--accent); font-size:16px; margin-bottom:10px;}
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block; font-size:12.5px; font-weight:700; color:var(--accent);
+    margin-bottom:5px; text-transform:uppercase; letter-spacing:.03em;
+  }
+  .field .hint{font-size:11.5px; color:var(--accent2); margin-top:4px; font-style:italic;}
+  input[type=text],input[type=number],input[type=tel],select{
+    width:100%; padding:13px 14px; font-size:16px;
+    border:1.5px solid #ddd3bd; border-radius:10px;
+    background:#fff; font-family:inherit; color:var(--fg);
+  }
+  input:focus,select:focus{outline:none; border-color:var(--accent2);}
+  .btn{
+    border:none; border-radius:10px; padding:14px 18px;
+    font-size:15px; font-weight:700; color:#fff; cursor:pointer;
+    font-family:inherit; width:100%;
+  }
+  .btn.green{background:var(--good);}
+  .btn.brown{background:var(--accent);}
+  .btn.gray{background:#888;}
+  .btn.red{background:var(--bad);}
+  .btn.outline{background:transparent; border:1.5px solid var(--accent); color:var(--accent);}
+  .btn-row{display:flex; gap:10px;}
+  .btn-row .btn{flex:1;}
+
+  .culture-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+  .culture-choice{
+    border:2px solid transparent; border-radius:10px; padding:12px 4px;
+    text-align:center; color:#fff; font-size:12.5px; font-weight:700; cursor:pointer;
+  }
+  .culture-choice.selected{border-color:var(--fg); transform:scale(1.03);}
+
+  .radio-row{display:flex; gap:10px;}
+  .radio-opt{
+    flex:1; padding:12px; text-align:center; border-radius:10px;
+    border:2px solid #ddd3bd; font-weight:700; cursor:pointer; font-size:14px;
+  }
+  .radio-opt.selected.oui{background:var(--good); color:#fff; border-color:var(--good);}
+  .radio-opt.selected.non{background:var(--bad); color:#fff; border-color:var(--bad);}
+
+  .result-box{
+    background:var(--bg2); border-radius:10px; padding:14px; text-align:center; margin:14px 0;
+  }
+  .result-box .poids{font-family:Georgia,serif; font-size:18px; font-weight:700; color:var(--accent);}
+  .result-box .montant{font-size:15px; color:var(--accent2); margin-top:4px;}
+
+  .planteur-banner{
+    border-radius:10px; padding:12px 14px; color:#fff; margin-bottom:14px; font-size:13.5px;
+  }
+
+  /* ───── LISTS / TABLES ───── */
+  .list-item{
+    background:var(--card); border-radius:12px; padding:13px 14px; margin-bottom:8px;
+    box-shadow:var(--shadow); display:flex; justify-content:space-between; align-items:center;
+    cursor:pointer;
+  }
+  .list-item .li-main{font-weight:700; font-size:14.5px;}
+  .list-item .li-sub{font-size:12px; color:#777; margin-top:2px;}
+  .li-tag{
+    font-size:11px; font-weight:700; color:#fff; padding:3px 9px; border-radius:30px; white-space:nowrap;
+  }
+  .rank-row{
+    display:flex; align-items:center; gap:10px; background:var(--card);
+    border-radius:12px; padding:11px 14px; margin-bottom:7px; box-shadow:var(--shadow);
+  }
+  .rank-medal{font-size:18px; width:28px; text-align:center;}
+  .rank-info{flex:1;}
+  .rank-info .rname{font-weight:700; font-size:14px;}
+  .rank-info .rsub{font-size:11.5px; color:#888;}
+  .rank-kg{font-weight:700; color:var(--accent); font-size:14px;}
+
+  .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;}
+  .stat-card{
+    background:var(--card); border-radius:12px; padding:14px; box-shadow:var(--shadow); text-align:center;
+  }
+  .stat-card .val{font-family:Georgia,serif; font-size:20px; font-weight:700; color:var(--accent);}
+  .stat-card .lbl{font-size:11px; color:#888; margin-top:3px; text-transform:uppercase; letter-spacing:.03em;}
+
+  .empty-state{
+    text-align:center; padding:50px 20px; color:#999;
+  }
+  .empty-state .ic{font-size:40px; margin-bottom:10px;}
+
+  /* ───── RECEIPT ───── */
+  .receipt{
+    background:#fff; border-radius:12px; padding:20px; box-shadow:var(--shadow);
+    font-family:'Courier New',monospace; font-size:12.5px; line-height:1.55;
+  }
+  .receipt .r-sep{border-top:1px dashed #999; margin:10px 0;}
+  .receipt .r-title{text-align:center; font-weight:700; font-size:14px;}
+  .receipt .r-amount{text-align:center; font-size:17px; font-weight:700; color:var(--accent); margin:6px 0;}
+  .receipt .r-reste{text-align:center; font-size:15px; font-weight:700; color:var(--bad);}
+  .receipt-logo{display:block; max-width:60px; max-height:60px; margin:0 auto 8px; border-radius:50%; object-fit:cover;}
+
+  /* ───── TABS (sous-navigation interne) ───── */
+  .subtabs{display:flex; gap:6px; overflow-x:auto; padding-bottom:10px; margin-bottom:10px;}
+  .subtabs button{
+    border:none; background:var(--bg2); color:var(--accent); font-weight:700; font-size:12.5px;
+    padding:9px 14px; border-radius:30px; white-space:nowrap; cursor:pointer; font-family:inherit;
+  }
+  .subtabs button.active{background:var(--accent); color:#fff;}
+
+  /* ───── BOTTOM NAV (gestionnaire) ───── */
+  .bottomnav{
+    position:fixed; bottom:0; left:0; right:0;
+    max-width:480px; margin:0 auto;
+    background:#fff; border-top:1px solid #e5ddc8;
+    display:flex; z-index:30;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .bottomnav button{
+    flex:1; background:none; border:none; padding:9px 2px 7px;
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    color:#999; font-size:10px; font-family:inherit; cursor:pointer;
+  }
+  .bottomnav button .ic{font-size:18px;}
+  .bottomnav button.active{color:var(--accent);}
+
+  /* ───── MISC ───── */
+  .lock-screen{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:70vh; padding:30px;
+  }
+  .lock-screen .ic{font-size:50px; margin-bottom:14px;}
+  .toast{
+    position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+    background:var(--fg); color:#fff; padding:12px 20px; border-radius:30px;
+    font-size:13.5px; z-index:100; box-shadow:0 4px 14px rgba(0,0,0,.25);
+    max-width:90%; text-align:center;
+  }
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(26,18,8,.5);
+    display:flex; align-items:center; justify-content:center; z-index:200; padding:20px;
+  }
+  .modal-box{
+    background:#fff; border-radius:14px; padding:22px; max-width:340px; width:100%;
+  }
+  .modal-box h3{color:var(--accent); margin-bottom:10px;}
+  .modal-box p{font-size:14px; color:#444; line-height:1.5; margin-bottom:16px;}
+
+  table.simple{width:100%; border-collapse:collapse; font-size:12.5px;}
+  table.simple th{
+    background:var(--accent); color:#fff; padding:8px 6px; text-align:left; position:sticky; top:0;
+  }
+  table.simple td{padding:8px 6px; border-bottom:1px solid #eee;}
+  table.simple tr:nth-child(even){background:#faf8f3;}
+  .table-scroll{overflow-x:auto; background:#fff; border-radius:12px; box-shadow:var(--shadow);}
+
+  .section-title{font-size:15px; font-weight:700; color:var(--accent); margin:18px 0 10px;}
+  .section-title:first-child{margin-top:0;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ════════════ TOPBAR ════════════ -->
+  <div class="topbar" id="topbar">
+    <button class="back hidden" id="btnBack" onclick="goBack()">←</button>
+    <div class="eyebrow" id="topEyebrow">🌿 AGRIAPP</div>
+    <h1 id="topTitle">Bienvenue</h1>
+    <div class="sub" id="topSub"></div>
+  </div>
+  <div class="culture-strip" id="cultureStrip"></div>
+
+  <!-- ════════════ SCREEN: ACCUEIL ════════════ -->
+  <div class="screen" id="screen-accueil">
+    <div class="home-hero">
+      <div class="logo-wrap" id="homeLogoWrap">🌿</div>
+      <h1 id="homeNom">AgriAPP</h1>
+      <div class="tag">Gestion de coopérative agricole</div>
+    </div>
+    <div class="culture-mosaic" id="homeMosaic"></div>
+    <div class="big-actions">
+      <button class="big-btn primary" onclick="nav('pesage-intro')"><span class="ic">⚖️</span> Nouveau pesage</button>
+      <button class="big-btn" style="background:var(--anacarde);" onclick="nav('consultation-planteur')"><span class="ic">🔍</span> Rechercher un planteur</button>
+      <button class="big-btn secondary" onclick="showLogin()"><span class="ic">🔐</span> Espace gestionnaire</button>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN: LOGIN ════════════ -->
+  <div class="screen hidden" id="screen-login">
+    <div class="lock-screen">
+      <div class="ic">🔐</div>
+      <div class="card" style="width:100%;">
+        <div class="field">
+          <label>Mot de passe gestionnaire</label>
+          <input type="text" id="loginPwd" placeholder="••••••••" autocomplete="off">
+        </div>
+        <button class="btn brown" onclick="checkLogin()">Se connecter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN: PESAGE INTRO ════════════ -->
+  <div class="screen hidden" id="screen-pesage-intro">
+    <div class="card" style="text-align:center; padding:28px 18px;">
+      <h3 style="margin-bottom:18px;">Ce planteur est-il déjà enregistré ?</h3>
+      <div class="big-actions">
+        <button class="big-btn primary" onclick="nav('recherche-planteur')"><span class="ic">✅</span> Oui, planteur existant</button>
+        <button class="big-btn brown" style="background:var(--accent);" onclick="nav('nouveau-planteur')"><span class="ic">➕</span> Non, nouveau planteur</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN: NOUVEAU PLANTEUR ════════════ -->
+  <div class="screen hidden" id="screen-nouveau-planteur">
+    <div class="card">
+      <h3>Fiche d'enregistrement</h3>
+      <div class="field">
+        <label>Code planteur</label>
+        <input type="text" id="npCode" placeholder="Ex: CAC-0042" style="text-transform:uppercase;">
+        <div class="hint">Code déjà attribué par la coopérative</div>
+      </div>
+      <div class="field"><label>Nom</label><input type="text" id="npNom"></div>
+      <div class="field"><label>Prénom</label><input type="text" id="npPrenom"></div>
+      <div class="field"><label>Localité</label><input type="text" id="npLocalite"></div>
+      <div class="field"><label>Téléphone</label><input type="tel" id="npTel"></div>
+      <div class="field">
+        <label>Culture</label>
+        <div class="culture-grid" id="npCultureGrid"></div>
+      </div>
+      <button class="btn green" id="npValiderBtn" onclick="validerNouveauPlanteur()">✅ Enregistrer & peser</button>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN: RECHERCHE PLANTEUR ════════════ -->
+  <div class="screen hidden" id="screen-recherche-planteur">
+    <div class="field">
+      <input type="text" id="searchInput" placeholder="🔍 Code, nom ou prénom..." oninput="rechercherPlanteur()">
+    </div>
+    <div id="searchResults"></div>
+  </div>
+
+  <!-- ════════════ SCREEN: CONSULTATION PLANTEUR (accueil) ════════════ -->
+  <div class="screen hidden" id="screen-consultation-planteur">
+    <div class="field">
+      <input type="text" id="consultSearchInput" placeholder="🔍 Code, nom ou prénom..." oninput="rechercherPlanteurConsultation()">
+    </div>
+    <div id="consultSearchResults"></div>
+  </div>
+
+  <!-- ════════════ SCREEN: FICHE PLANTEUR ════════════ -->
+  <div class="screen hidden" id="screen-fiche-planteur">
+    <div class="planteur-banner" id="fichePlanteurBanner"></div>
+    <div class="card">
+      <h3>📞 Coordonnées</h3>
+      <div id="ficheCoordonnees" style="font-size:13.5px; line-height:1.7;"></div>
+    </div>
+    <h3 class="section-title">Historique des pesages</h3>
+    <div id="ficheHistorique"></div>
+    <button class="btn green" style="margin-top:14px;" onclick="peserDepuisFiche()">⚖️ Peser ce planteur</button>
+    <button class="btn outline" style="margin-top:10px;" onclick="nav('consultation-planteur')">← Retour à la recherche</button>
+  </div>
+
+  <!-- ════════════ SCREEN: PESAGE FORM ════════════ -->
+  <div class="screen hidden" id="screen-pesage-form">
+    <div class="planteur-banner" id="pesagePlanteurBanner"></div>
+    <div class="card">
+      <div class="field"><label>Poids total (kg)</label><input type="number" id="pfPoids" inputmode="decimal"></div>
+      <div class="field"><label>Nombre de sacs</label><input type="number" id="pfSacs" inputmode="numeric"></div>
+      <div class="field"><label>Prix au kg (FCFA)</label><input type="number" id="pfPrix" inputmode="decimal"></div>
+      <div class="result-box">
+        <div class="poids" id="pfResultPoids">Poids net = —</div>
+        <div class="montant" id="pfResultMontant">Montant = —</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>💰 Paiement</h3>
+      <div class="radio-row" style="margin-bottom:12px;">
+        <div class="radio-opt selected oui" id="payOui" onclick="setPaiement('oui')">✅ Payé en totalité</div>
+        <div class="radio-opt non" id="payNon" onclick="setPaiement('non')">❌ Paiement partiel</div>
+      </div>
+      <div class="hidden" id="partielBlock">
+        <div class="field"><label>Montant payé (FCFA)</label><input type="number" id="pfMontantPaye" inputmode="decimal"></div>
+        <div class="result-box" style="background:#fbeaea;">
+          <div class="montant" id="pfReste" style="color:var(--bad); font-weight:700;">Reste : —</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn green" onclick="validerPesage()">✅ Valider & générer le reçu</button>
+  </div>
+
+  <!-- ════════════ SCREEN: RECU ════════════ -->
+  <div class="screen hidden" id="screen-recu">
+    <div class="receipt" id="receiptContent"></div>
+    <div class="btn-row" style="margin-top:14px;">
+      <button class="btn brown" onclick="imprimerRecu()">🖨️ Imprimer</button>
+      <button class="btn green" onclick="nav('pesage-intro')">⚖️ Nouveau pesage</button>
+    </div>
+    <div class="btn-row" style="margin-top:10px;">
+      <button class="btn" style="background:var(--anacarde);" onclick="corrigerPesageRecu()">✏️ Corriger</button>
+      <button class="btn outline" onclick="nav('accueil')">← Accueil</button>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN: GESTIONNAIRE (dashboard avec bottom nav) ════════════ -->
+  <div class="screen hidden" id="screen-gest-classement">
+    <h3 class="section-title">🏆 Classement général</h3>
+    <div id="classementList"></div>
+  </div>
+
+  <div class="screen hidden" id="screen-gest-campagnes">
+    <h3 class="section-title">🏆 Classement par campagne</h3>
+    <div class="field"><label>Culture</label><select id="campCultureSel" onchange="majCampagnesSelect()"></select></div>
+    <div class="field"><label>Campagne</label><select id="campSelectPeriode" onchange="majClassementCampagne()"></select></div>
+    <div class="hint" id="campPeriodeInfo" style="margin-bottom:10px;"></div>
+    <div id="campagneClassementList"></div>
+  </div>
+
+  <div class="screen hidden" id="screen-gest-bilan">
+    <h3 class="section-title">💰 Bilan des dépenses</h3>
+    <div class="subtabs" id="bilanSubtabs"></div>
+    <div id="bilanContent"></div>
+  </div>
+
+  <div class="screen hidden" id="screen-gest-planteurs">
+    <h3 class="section-title">📋 Planteurs enregistrés</h3>
+    <button class="btn green" style="margin-bottom:14px;" onclick="nav('ajouter-planteur-gest')">➕ Ajouter un planteur</button>
+    <div id="planteursList"></div>
+  </div>
+
+  <div class="screen hidden" id="screen-gest-historique">
+    <h3 class="section-title">🔍 Historique des pesages</h3>
+    <div class="table-scroll">
+      <table class="simple" id="historiqueTable"></table>
+    </div>
+  </div>
+
+  <div class="screen hidden" id="screen-gest-stats">
+    <h3 class="section-title">📈 Statistiques</h3>
+    <div class="stat-grid" id="statGlobales"></div>
+    <div class="subtabs" id="statsSubtabs"></div>
+    <div id="statsContent"></div>
+  </div>
+
+  <div class="screen hidden" id="screen-gest-parametres">
+    <h3 class="section-title">⚙️ Paramètres</h3>
+    <div class="card">
+      <h3>Nom de la coopérative</h3>
+      <div class="field"><input type="text" id="paramNom"></div>
+      <button class="btn brown" onclick="sauverNomApp()">✅ Sauvegarder</button>
+    </div>
+    <div class="card">
+      <h3>Logo de la coopérative</h3>
+      <div style="text-align:center; margin-bottom:12px;">
+        <div class="logo-wrap" id="paramLogoPreview" style="margin:0 auto;">🌿</div>
+      </div>
+      <input type="file" id="logoFileInput" accept="image/*" style="display:none" onchange="onLogoSelected(event)">
+      <div class="btn-row">
+        <button class="btn brown" onclick="document.getElementById('logoFileInput').click()">🖼️ Choisir un logo</button>
+        <button class="btn red" onclick="supprimerLogo()">🗑️ Retirer</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Export des données</h3>
+      <button class="btn brown" onclick="exportCSV()">📥 Exporter en CSV (Excel)</button>
+      <div class="hint" style="margin-top:8px;">Le fichier s'ouvre directement dans Excel ou Google Sheets</div>
+    </div>
+    <div class="card">
+      <h3>🔑 Mot de passe gestionnaire</h3>
+      <div class="field"><label>Mot de passe actuel</label><input type="password" id="paramPwdActuel"></div>
+      <div class="field"><label>Nouveau mot de passe</label><input type="password" id="paramNewPwd"></div>
+      <div class="field"><label>Confirmer le nouveau mot de passe</label><input type="password" id="paramPwdConfirme"></div>
+      <button class="btn brown" onclick="changerMotDePasse()">🔑 Changer le mot de passe</button>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--bad);">🗑️ Supprimer un planteur</h3>
+      <div class="hint" style="margin-bottom:10px;">⚠️ Action irréversible — l'historique de pesage sera aussi supprimé</div>
+      <div class="field"><label>Code planteur</label><input type="text" id="paramCodeSupprimer" style="text-transform:uppercase;"></div>
+      <button class="btn red" onclick="supprimerPlanteurAction()">🗑️ Supprimer ce planteur</button>
+    </div>
+    <div class="card">
+      <h3>🔌 Reçus en attente d'impression</h3>
+      <div class="hint" style="margin-bottom:10px;">Pesages dont le reçu n'a pas pu être imprimé</div>
+      <div id="recusAttenteList"></div>
+    </div>
+    <div class="card">
+      <h3>🖼️ Photos des cultures</h3>
+      <div class="hint" style="margin-bottom:10px;">Remplace l'icône par défaut sur l'écran d'accueil (assurez-vous d'en détenir les droits)</div>
+      <div id="paramPhotosCulture"></div>
+    </div>
+    <div class="card">
+      <h3>🎨 Fond de l'écran d'accueil</h3>
+      <div class="radio-row" style="margin-bottom:12px;">
+        <label class="radio-opt" style="display:flex; align-items:center; justify-content:center; gap:6px;">
+          <input type="radio" name="fondMode" value="couleur" onchange="setFondMode('couleur')"> 🎨 Couleur
+        </label>
+        <label class="radio-opt" style="display:flex; align-items:center; justify-content:center; gap:6px;">
+          <input type="radio" name="fondMode" value="image" onchange="setFondMode('image')"> 🖼️ Image
+        </label>
+      </div>
+      <div id="fondCouleurBlock">
+        <div class="field"><label>Couleur de fond</label><input type="color" id="fondCouleurInput" style="height:46px; padding:4px;"></div>
+      </div>
+      <div id="fondImageBlock" class="hidden">
+        <div style="width:90px;height:90px;border-radius:10px;background:var(--bg2);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:10px;font-size:11px;text-align:center;" id="fondImagePreview">Aucune image</div>
+        <input type="file" id="fondImageInput" accept="image/*" style="display:none" onchange="onFondImageSelected(event)">
+        <button class="btn brown" onclick="document.getElementById('fondImageInput').click()">🖼️ Choisir une image</button>
+      </div>
+      <div class="btn-row" style="margin-top:12px;">
+        <button class="btn green" onclick="appliquerFond()">✅ Appliquer</button>
+        <button class="btn gray" onclick="reinitialiserFond()">↺ Réinitialiser</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ BOUTON FLOTTANT RETOUR ACCUEIL (gestionnaire) ════════════ -->
+  <button class="hidden" id="btnHomeFloat" onclick="nav('accueil')"
+          style="position:fixed; bottom:78px; right:16px; z-index:31; width:48px; height:48px;
+                 border-radius:50%; background:var(--accent); color:#fff; border:none;
+                 font-size:20px; box-shadow:0 4px 12px rgba(0,0,0,.25); cursor:pointer;">🏠</button>
+
+  <!-- ════════════ BOTTOM NAV (gestionnaire only) ════════════ -->
+  <div class="bottomnav hidden" id="bottomNav">
+    <button data-tab="classement" onclick="gestTab('classement')"><span class="ic">🏆</span>Classmt</button>
+    <button data-tab="campagnes" onclick="gestTab('campagnes')"><span class="ic">📅</span>Campagne</button>
+    <button data-tab="bilan" onclick="gestTab('bilan')"><span class="ic">💰</span>Bilan</button>
+    <button data-tab="planteurs" onclick="gestTab('planteurs')"><span class="ic">👥</span>Planteurs</button>
+    <button data-tab="stats" onclick="gestTab('stats')"><span class="ic">📈</span>Stats</button>
+    <button data-tab="parametres" onclick="gestTab('parametres')"><span class="ic">⚙️</span>Réglages</button>
+  </div>
+
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   AgriAPP — Logique applicative
+   Stockage: localStorage (fonctionne 100% hors-ligne)
+   ════════════════════════════════════════ */
+
+const POIDS_SAC = 1; // kg par sac vide
+
+const CULTURES = ["Cacao", "Hévéa", "Anacarde", "Coton", "Café"];
+const COULEURS = {
+  "Cacao": "#6B3A2A",
+  "Hévéa": "#2E6B3A",
+  "Anacarde": "#8B6914",
+  "Coton": "#2A5C8B",
+  "Café": "#4A2E1A"
+};
+
+/* ───────── STOCKAGE (localStorage) ───────── */
+function db() {
+  let data = localStorage.getItem('agriapp_db');
+  if (!data) {
+    data = { planteurs: [], pesages: [], nextPesageId: 1, nomApp: "AgriAPP", logo: null, motDePasse: "coop2024" };
+    localStorage.setItem('agriapp_db', JSON.stringify(data));
+  }
+  return JSON.parse(data);
+}
+function saveDb(d) { localStorage.setItem('agriapp_db', JSON.stringify(d)); }
+
+function getNomApp() { return db().nomApp || "AgriAPP"; }
+function setNomApp(nom) { const d = db(); d.nomApp = nom; saveDb(d); }
+function getLogo() { return db().logo; }
+function setLogo(dataUrl) { const d = db(); d.logo = dataUrl; saveDb(d); }
+function getMotDePasse() { return db().motDePasse || "coop2024"; }
+function setMotDePasse(mdp) { const d = db(); d.motDePasse = mdp; saveDb(d); }
+
+function codeExiste(code) {
+  return db().planteurs.some(p => p.code.toUpperCase() === code.toUpperCase());
+}
+
+function creerPlanteur(code, nom, prenom, localite, telephone, culture) {
+  const d = db();
+  d.planteurs.push({
+    code: code.toUpperCase(),
+    nom: nom.toUpperCase(),
+    prenom: prenom.charAt(0).toUpperCase() + prenom.slice(1),
+    localite: localite.charAt(0).toUpperCase() + localite.slice(1),
+    telephone, culture,
+    dateInscription: new Date().toISOString().slice(0, 10)
+  });
+  saveDb(d);
+  return code.toUpperCase();
+}
+
+function rechercherPlanteurDb(terme) {
+  if (!terme) return [];
+  terme = terme.toLowerCase();
+  return db().planteurs.filter(p =>
+    p.code.toLowerCase().includes(terme) ||
+    p.nom.toLowerCase().includes(terme) ||
+    p.prenom.toLowerCase().includes(terme)
+  );
+}
+
+function getPlanteurByCode(code) {
+  return db().planteurs.find(p => p.code.toUpperCase() === code.toUpperCase());
+}
+
+function enregistrerPesage(codePlanteur, culture, poidsTotal, nbSacs, prixKg, payeTotal, montantPaye, reste) {
+  const d = db();
+  const poidsNet = poidsTotal - nbSacs * POIDS_SAC;
+  const montant = poidsNet * prixKg;
+  const pesage = {
+    id: d.nextPesageId++,
+    codePlanteur, culture,
+    poidsTotal, nbSacs, poidsNet, prixKg, montant,
+    payeTotal, montantPaye, reste,
+    date: new Date().toISOString()
+  };
+  d.pesages.push(pesage);
+  saveDb(d);
+  return pesage;
+}
+
+function supprimerPesage(pesageId) {
+  const d = db();
+  d.pesages = d.pesages.filter(p => p.id !== pesageId);
+  saveDb(d);
+}
+
+function supprimerPlanteur(code) {
+  const d = db();
+  d.planteurs = d.planteurs.filter(p => p.code.toUpperCase() !== code.toUpperCase());
+  d.pesages = d.pesages.filter(p => p.codePlanteur.toUpperCase() !== code.toUpperCase());
+  saveDb(d);
+}
+
+function getHistoriquePlanteur(code) {
+  return db().pesages
+    .filter(p => p.codePlanteur.toUpperCase() === code.toUpperCase())
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+}
+
+/* ───────── PHOTOS PAR CULTURE ───────── */
+function getPhotoCulture(culture) { return (db().photosCulture || {})[culture] || null; }
+function setPhotoCulture(culture, dataUrl) {
+  const d = db();
+  if (!d.photosCulture) d.photosCulture = {};
+  d.photosCulture[culture] = dataUrl;
+  saveDb(d);
+}
+function retirerPhotoCulture(culture) {
+  const d = db();
+  if (d.photosCulture) delete d.photosCulture[culture];
+  saveDb(d);
+}
+
+/* ───────── FOND D'ACCUEIL PERSONNALISÉ ───────── */
+function getFondConfig() {
+  return (db().fond) || { type: 'couleur', couleur: '#F5F0E8' };
+}
+function setFondCouleur(couleurHex) {
+  const d = db(); d.fond = { type: 'couleur', couleur: couleurHex }; saveDb(d);
+}
+function setFondImage(dataUrl) {
+  const d = db(); d.fond = { type: 'image', image: dataUrl }; saveDb(d);
+}
+function resetFond() {
+  const d = db(); d.fond = { type: 'couleur', couleur: '#F5F0E8' }; saveDb(d);
+}
+
+/* ───────── FILE D'ATTENTE D'IMPRESSION ───────── */
+function getRecusEnAttente() { return db().recusAttente || []; }
+function ajouterRecuAttente(pesageId, codePlanteur) {
+  const d = db();
+  if (!d.recusAttente) d.recusAttente = [];
+  d.recusAttente.push({ pesageId, codePlanteur, date: new Date().toLocaleString('fr-FR') });
+  saveDb(d);
+}
+function retirerRecuAttente(pesageId) {
+  const d = db();
+  d.recusAttente = (d.recusAttente || []).filter(r => r.pesageId !== pesageId);
+  saveDb(d);
+}
+
+/* ───────── CAMPAGNES AGRICOLES ───────── */
+function getCampagne(culture, dateObj) {
+  dateObj = dateObj || new Date();
+  const annee = dateObj.getFullYear();
+  const mois = dateObj.getMonth() + 1;
+
+  if (culture === "Cacao" || culture === "Café") {
+    if (mois >= 9) {
+      return { libelle: `Grande campagne ${annee}-${annee+1}`, debut: new Date(annee,8,1), fin: new Date(annee+1,1,28) };
+    } else if (mois <= 2) {
+      return { libelle: `Grande campagne ${annee-1}-${annee}`, debut: new Date(annee-1,8,1), fin: new Date(annee,1,28) };
+    } else {
+      return { libelle: `Petite campagne ${annee}`, debut: new Date(annee,2,1), fin: new Date(annee,7,31) };
+    }
+  } else if (culture === "Anacarde") {
+    if (mois >= 2 && mois <= 7) {
+      return { libelle: `Campagne anacarde ${annee}`, debut: new Date(annee,1,1), fin: new Date(annee,6,31) };
+    } else if (mois === 1) {
+      return { libelle: `Campagne anacarde ${annee-1}`, debut: new Date(annee-1,1,1), fin: new Date(annee-1,6,31) };
+    } else {
+      return { libelle: `Campagne anacarde ${annee}`, debut: new Date(annee,1,1), fin: new Date(annee,6,31) };
+    }
+  } else if (culture === "Coton") {
+    if (mois >= 5) {
+      return { libelle: `Campagne coton ${annee}-${annee+1}`, debut: new Date(annee,4,1), fin: new Date(annee+1,5,30) };
+    } else {
+      return { libelle: `Campagne coton ${annee-1}-${annee}`, debut: new Date(annee-1,4,1), fin: new Date(annee,5,30) };
+    }
+  } else if (culture === "Hévéa") {
+    if (mois >= 3) {
+      return { libelle: `Campagne hévéa ${annee}-${annee+1}`, debut: new Date(annee,2,1), fin: new Date(annee+1,0,31) };
+    } else {
+      return { libelle: `Campagne hévéa ${annee-1}-${annee}`, debut: new Date(annee-1,2,1), fin: new Date(annee,0,31) };
+    }
+  }
+  return { libelle: "?", debut: dateObj, fin: dateObj };
+}
+
+function getCampagnesDisponibles(culture) {
+  const today = new Date();
+  const campagnes = [];
+  const vus = new Set();
+  for (let deltaMois = 0; deltaMois < 36; deltaMois++) {
+    const d = new Date(today.getFullYear(), today.getMonth() - deltaMois, 1);
+    const c = getCampagne(culture, d);
+    if (!vus.has(c.libelle)) {
+      vus.add(c.libelle);
+      campagnes.push(c);
+    }
+  }
+  campagnes.sort((a, b) => b.debut - a.debut);
+  return campagnes;
+}
+
+function dateInRange(dateStr, debut, fin) {
+  const d = new Date(dateStr);
+  d.setHours(0,0,0,0);
+  const deb = new Date(debut); deb.setHours(0,0,0,0);
+  const f = new Date(fin); f.setHours(23,59,59,999);
+  return d >= deb && d <= f;
+}
+
+/* ───────── CLASSEMENTS & STATS ───────── */
+function getClassementGeneral() {
+  const d = db();
+  const map = {};
+  d.planteurs.forEach(p => {
+    map[p.code] = { ...p, totalKg: 0, nbPesages: 0 };
+  });
+  d.pesages.forEach(ps => {
+    if (map[ps.codePlanteur]) {
+      map[ps.codePlanteur].totalKg += ps.poidsNet;
+      map[ps.codePlanteur].nbPesages += 1;
+    }
+  });
+  return Object.values(map).sort((a, b) => b.totalKg - a.totalKg);
+}
+
+function getClassementCampagne(culture, debut, fin) {
+  const d = db();
+  const planteursOfCulture = d.planteurs.filter(p => p.culture === culture);
+  const map = {};
+  planteursOfCulture.forEach(p => { map[p.code] = { ...p, totalKg: 0, nbPesages: 0, totalFcfa: 0 }; });
+  d.pesages.forEach(ps => {
+    if (ps.culture === culture && map[ps.codePlanteur] && dateInRange(ps.date, debut, fin)) {
+      map[ps.codePlanteur].totalKg += ps.poidsNet;
+      map[ps.codePlanteur].nbPesages += 1;
+      map[ps.codePlanteur].totalFcfa += ps.montant;
+    }
+  });
+  return Object.values(map).filter(p => p.nbPesages > 0).sort((a, b) => b.totalKg - a.totalKg);
+}
+
+function getBilanPeriode(debut, fin, culture) {
+  const d = db();
+  let nbPesages = 0, totalSacs = 0, totalKg = 0, totalMontant = 0;
+  d.pesages.forEach(ps => {
+    if (dateInRange(ps.date, debut, fin) && (!culture || ps.culture === culture)) {
+      nbPesages++; totalSacs += ps.nbSacs; totalKg += ps.poidsNet; totalMontant += ps.montant;
+    }
+  });
+  return { nbPesages, totalSacs, totalKg, totalMontant };
+}
+
+function getStatsParCulture() {
+  const d = db();
+  return CULTURES.map(culture => {
+    const planteurs = d.planteurs.filter(p => p.culture === culture).length;
+    const pesages = d.pesages.filter(p => p.culture === culture);
+    const totalKg = pesages.reduce((s, p) => s + p.poidsNet, 0);
+    const totalFcfa = pesages.reduce((s, p) => s + p.montant, 0);
+    return { culture, planteurs, nbPesages: pesages.length, totalKg, totalFcfa, moyKg: pesages.length ? totalKg / pesages.length : 0 };
+  }).sort((a, b) => b.totalKg - a.totalKg);
+}
+
+function getStatsParLocalite() {
+  const d = db();
+  const localites = [...new Set(d.planteurs.map(p => p.localite))];
+  return localites.map(loc => {
+    const planteursLoc = d.planteurs.filter(p => p.localite === loc);
+    const codes = planteursLoc.map(p => p.code);
+    const pesages = d.pesages.filter(p => codes.includes(p.codePlanteur));
+    const totalKg = pesages.reduce((s, p) => s + p.poidsNet, 0);
+    const totalFcfa = pesages.reduce((s, p) => s + p.montant, 0);
+    return { localite: loc, planteurs: planteursLoc.length, nbPesages: pesages.length, totalKg, totalFcfa };
+  }).sort((a, b) => b.totalKg - a.totalKg);
+}
+
+/* ════════════════════════════════════════
+   NAVIGATION
+   ════════════════════════════════════════ */
+let navHistory = ['accueil'];
+let currentScreen = 'accueil';
+let selectedCultureNP = CULTURES[0];
+let currentPlanteurPesage = null;
+let paiementMode = 'oui';
+let currentGestTab = 'classement';
+
+const SCREEN_TITLES = {
+  'accueil': { title: '', sub: '', eyebrow: true, strip: true, backBtn: false },
+  'login': { title: 'Connexion', sub: 'Espace gestionnaire', backBtn: true },
+  'pesage-intro': { title: 'Pesage', sub: 'Identification du planteur', backBtn: true },
+  'nouveau-planteur': { title: 'Nouveau planteur', sub: "Fiche d'enregistrement", backBtn: true },
+  'recherche-planteur': { title: 'Recherche planteur', sub: 'Code, nom ou prénom', backBtn: true },
+  'consultation-planteur': { title: '🔍 Rechercher un planteur', sub: 'Consultation des informations', backBtn: true },
+  'fiche-planteur': { title: '👤 Fiche planteur', sub: '', backBtn: true },
+  'ajouter-planteur-gest': { title: 'Ajouter un planteur', sub: "Depuis l'espace gestionnaire", backBtn: true },
+  'pesage-form': { title: '⚖️ Pesage', sub: '', backBtn: true },
+  'recu': { title: '✅ Pesage enregistré', sub: 'Reçu de paiement', backBtn: false },
+  'gestionnaire': { title: 'Espace Gestionnaire', sub: 'Tableau de bord', backBtn: true }
+};
+
+function nav(screen) {
+  document.getElementById('screen-' + currentScreen)?.classList.add('hidden');
+  if (currentScreen.startsWith('gest-')) document.getElementById('screen-' + currentScreen)?.classList.add('hidden');
+
+  navHistory.push(screen);
+  currentScreen = screen;
+  renderScreen(screen);
+}
+
+function goBack() {
+  if (currentScreen === 'gestionnaire') {
+    nav('accueil');
+    return;
+  }
+  if (navHistory.length > 1) {
+    navHistory.pop();
+    const prev = navHistory[navHistory.length - 1];
+    currentScreen = prev;
+    renderScreen(prev, true);
+  } else {
+    renderScreen('accueil', true);
+  }
+}
+
+function renderScreen(screen, isBack) {
+  // Cacher tous les écrans
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById('bottomNav').classList.add('hidden');
+  document.getElementById('btnHomeFloat').classList.add('hidden');
+
+  let targetId = screen;
+  if (screen === 'gestionnaire') {
+    targetId = 'gest-' + currentGestTab;
+    document.getElementById('bottomNav').classList.remove('hidden');
+    document.getElementById('btnHomeFloat').classList.remove('hidden');
+  }
+  if (screen === 'ajouter-planteur-gest') {
+    targetId = 'nouveau-planteur';
+  }
+
+  const el = document.getElementById('screen-' + targetId);
+  if (el) el.classList.remove('hidden');
+
+  // Header
+  const meta = SCREEN_TITLES[screen] || { title: '', sub: '', backBtn: true };
+  document.getElementById('topTitle').textContent = meta.title;
+  document.getElementById('topSub').textContent = meta.sub;
+  document.getElementById('btnBack').classList.toggle('hidden', !meta.backBtn);
+  document.getElementById('topEyebrow').innerHTML = `🌿 ${getNomApp().toUpperCase()}`;
+  document.getElementById('cultureStrip').classList.toggle('hidden', screen === 'accueil');
+
+  if (screen === 'accueil') { renderAccueil(); navHistory = ['accueil']; }
+  if (screen === 'nouveau-planteur') renderNouveauPlanteurForm(false);
+  if (screen === 'recherche-planteur') { document.getElementById('searchInput').value=''; document.getElementById('searchResults').innerHTML=''; }
+  if (screen === 'consultation-planteur') { document.getElementById('consultSearchInput').value=''; document.getElementById('consultSearchResults').innerHTML=''; }
+  if (screen === 'fiche-planteur') renderFichePlanteur();
+  if (screen === 'ajouter-planteur-gest') renderNouveauPlanteurForm(true);
+  if (screen === 'pesage-form') renderPesageForm();
+  if (screen === 'gestionnaire') { gestTab(currentGestTab); }
+
+  window.scrollTo(0, 0);
+}
+
+function renderCultureStrip() {
+  const strip = document.getElementById('cultureStrip');
+  strip.innerHTML = CULTURES.map(c => `<span style="background:${COULEURS[c]}"></span>`).join('');
+}
+
+/* ───────── ACCUEIL ───────── */
+const ICONES_CULTURE = { "Cacao": "🌰", "Hévéa": "🌳", "Anacarde": "🥭", "Coton": "☁️", "Café": "☕" };
+
+function renderAccueil() {
+  document.getElementById('homeNom').textContent = getNomApp();
+  const logo = getLogo();
+  const wrap = document.getElementById('homeLogoWrap');
+  wrap.innerHTML = logo ? `<img src="${logo}">` : '🌿';
+
+  document.getElementById('homeMosaic').innerHTML = CULTURES.map(c => {
+    const photo = getPhotoCulture(c);
+    return `
+      <div class="culture-tile" style="background:${COULEURS[c]}">
+        ${photo ? `<img src="${photo}">` : ''}
+        ${photo ? '<div class="tile-overlay"></div>' : ''}
+        <span class="tile-ic">${ICONES_CULTURE[c] || '🌿'}</span>
+        <span class="tile-label">${c}</span>
+      </div>`;
+  }).join('');
+
+  appliquerFondAccueil();
+}
+
+function appliquerFondAccueil() {
+  const cfg = getFondConfig();
+  const screenEl = document.getElementById('screen-accueil');
+  const heroEl = screenEl.querySelector('.home-hero');
+  const mosaicEl = screenEl.querySelector('.culture-mosaic');
+  const actionsEl = screenEl.querySelector('.big-actions');
+
+  // Nettoyage : on retire l'ancien wrapper overlay s'il existe
+  let overlay = screenEl.querySelector('.accueil-card-overlay');
+
+  if (cfg.type === 'image' && cfg.image) {
+    screenEl.style.backgroundImage = `url('${cfg.image}')`;
+    screenEl.style.backgroundSize = 'cover';
+    screenEl.style.backgroundPosition = 'center';
+    screenEl.style.backgroundRepeat = 'no-repeat';
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'accueil-card-overlay';
+      overlay.appendChild(heroEl);
+      overlay.appendChild(mosaicEl);
+      overlay.appendChild(actionsEl);
+      screenEl.appendChild(overlay);
+    }
+  } else {
+    screenEl.style.backgroundImage = 'none';
+    screenEl.style.backgroundColor = cfg.couleur || '#F5F0E8';
+    if (overlay) {
+      // On remet les éléments directement dans l'écran
+      screenEl.appendChild(heroEl);
+      screenEl.appendChild(mosaicEl);
+      screenEl.appendChild(actionsEl);
+      overlay.remove();
+    }
+  }
+}
+
+/* ───────── LOGIN ───────── */
+function showLogin() {
+  document.getElementById('loginPwd').value = '';
+  nav('login');
+}
+function checkLogin() {
+  const pwd = document.getElementById('loginPwd').value;
+  if (pwd === getMotDePasse()) {
+    nav('gestionnaire');
+  } else {
+    toast('❌ Mot de passe incorrect');
+  }
+}
+
+/* ───────── NOUVEAU PLANTEUR ───────── */
+let npDepuisGestionnaire = false;
+
+function renderNouveauPlanteurForm(depuisGestionnaire) {
+  npDepuisGestionnaire = !!depuisGestionnaire;
+  document.getElementById('npCode').value = '';
+  document.getElementById('npNom').value = '';
+  document.getElementById('npPrenom').value = '';
+  document.getElementById('npLocalite').value = '';
+  document.getElementById('npTel').value = '';
+  selectedCultureNP = CULTURES[0];
+  const grid = document.getElementById('npCultureGrid');
+  grid.innerHTML = CULTURES.map(c =>
+    `<div class="culture-choice ${c===selectedCultureNP?'selected':''}" style="background:${COULEURS[c]}" onclick="selectCultureNP('${c}')">${c}</div>`
+  ).join('');
+  const btn = document.getElementById('npValiderBtn');
+  if (btn) btn.textContent = npDepuisGestionnaire ? '✅ Enregistrer le planteur' : '✅ Enregistrer & peser';
+}
+function selectCultureNP(c) {
+  selectedCultureNP = c;
+  document.querySelectorAll('#npCultureGrid .culture-choice').forEach(el => {
+    el.classList.toggle('selected', el.textContent === c);
+  });
+}
+function validerNouveauPlanteur() {
+  const code = document.getElementById('npCode').value.trim();
+  const nom = document.getElementById('npNom').value.trim();
+  const prenom = document.getElementById('npPrenom').value.trim();
+  const localite = document.getElementById('npLocalite').value.trim();
+  const tel = document.getElementById('npTel').value.trim();
+
+  if (!code || !nom || !prenom || !localite || !tel) {
+    toast('⚠️ Veuillez remplir tous les champs');
+    return;
+  }
+  if (codeExiste(code)) {
+    toast(`❌ Le code "${code.toUpperCase()}" est déjà utilisé`);
+    return;
+  }
+  creerPlanteur(code, nom, prenom, localite, tel, selectedCultureNP);
+  toast(`✅ Planteur enregistré : ${code.toUpperCase()}`);
+  if (npDepuisGestionnaire) {
+    setTimeout(() => nav('gestionnaire'), 600);
+  } else {
+    currentPlanteurPesage = getPlanteurByCode(code);
+    setTimeout(() => nav('pesage-form'), 600);
+  }
+}
+
+/* ───────── RECHERCHE PLANTEUR ───────── */
+function rechercherPlanteur() {
+  const terme = document.getElementById('searchInput').value;
+  const results = rechercherPlanteurDb(terme);
+  const container = document.getElementById('searchResults');
+  if (!terme) { container.innerHTML = ''; return; }
+  if (results.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="ic">🔍</div>Aucun planteur trouvé</div>`;
+    return;
+  }
+  container.innerHTML = results.map(p => `
+    <div class="list-item" onclick="selectionnerPlanteur('${p.code}')">
+      <div>
+        <div class="li-main">${p.prenom} ${p.nom}</div>
+        <div class="li-sub">${p.code} · ${p.localite}</div>
+      </div>
+      <span class="li-tag" style="background:${COULEURS[p.culture]}">${p.culture}</span>
+    </div>
+  `).join('');
+}
+function selectionnerPlanteur(code) {
+  currentPlanteurPesage = getPlanteurByCode(code);
+  nav('pesage-form');
+}
+
+/* ───────── CONSULTATION PLANTEUR (sans pesage) ───────── */
+let fichePlanteurCode = null;
+
+function rechercherPlanteurConsultation() {
+  const terme = document.getElementById('consultSearchInput').value;
+  const results = rechercherPlanteurDb(terme);
+  const container = document.getElementById('consultSearchResults');
+  if (!terme) { container.innerHTML = ''; return; }
+  if (results.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="ic">🔍</div>Aucun planteur trouvé</div>`;
+    return;
+  }
+  container.innerHTML = results.map(p => `
+    <div class="list-item" onclick="ouvrirFichePlanteur('${p.code}')">
+      <div>
+        <div class="li-main">${p.prenom} ${p.nom}</div>
+        <div class="li-sub">${p.code} · ${p.localite} · 📞 ${p.telephone}</div>
+      </div>
+      <span class="li-tag" style="background:${COULEURS[p.culture]}">${p.culture}</span>
+    </div>
+  `).join('');
+}
+
+function ouvrirFichePlanteur(code) {
+  fichePlanteurCode = code;
+  nav('fiche-planteur');
+}
+
+function renderFichePlanteur() {
+  const p = getPlanteurByCode(fichePlanteurCode);
+  if (!p) return;
+  document.getElementById('fichePlanteurBanner').style.background = COULEURS[p.culture];
+  document.getElementById('fichePlanteurBanner').innerHTML =
+    `<b>${p.prenom} ${p.nom}</b><br>Code : ${p.code} · ${p.culture}`;
+  document.getElementById('ficheCoordonnees').innerHTML = `
+    📍 Localité : ${p.localite}<br>
+    📞 Téléphone : ${p.telephone}<br>
+    📅 Inscrit le : ${new Date(p.dateInscription).toLocaleDateString('fr-FR')}`;
+
+  const historique = getHistoriquePlanteur(p.code);
+  const totalKg = historique.reduce((s, h) => s + h.poidsNet, 0);
+  const container = document.getElementById('ficheHistorique');
+  if (historique.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="ic">⚖️</div>Aucun pesage enregistré</div>`;
+  } else {
+    container.innerHTML = `
+      <div class="table-scroll"><table class="simple">
+        <tr><th>Date</th><th>Net(kg)</th><th>Sacs</th><th>FCFA</th></tr>
+        ${historique.map(h => `
+          <tr>
+            <td>${new Date(h.date).toLocaleDateString('fr-FR')}</td>
+            <td>${h.poidsNet.toFixed(1)}</td>
+            <td>${h.nbSacs}</td>
+            <td>${h.montant.toLocaleString('fr-FR')}</td>
+          </tr>`).join('')}
+      </table></div>
+      <div class="hint" style="margin-top:8px;">Total cumulé : ${totalKg.toFixed(1)} kg sur ${historique.length} pesage(s)</div>`;
+  }
+}
+
+function peserDepuisFiche() {
+  currentPlanteurPesage = getPlanteurByCode(fichePlanteurCode);
+  nav('pesage-form');
+}
+
+/* ───────── PESAGE FORM ───────── */
+function renderPesageForm() {
+  const p = currentPlanteurPesage;
+  if (!p) return;
+  document.getElementById('pesagePlanteurBanner').style.background = COULEURS[p.culture];
+  document.getElementById('pesagePlanteurBanner').innerHTML =
+    `🌿 <b>${p.prenom} ${p.nom}</b> — ${p.culture} | ${p.localite} | Code: ${p.code}`;
+  document.getElementById('pfPoids').value = '';
+  document.getElementById('pfSacs').value = '';
+  document.getElementById('pfPrix').value = '';
+  document.getElementById('pfMontantPaye').value = '';
+  document.getElementById('pfResultPoids').textContent = 'Poids net = —';
+  document.getElementById('pfResultMontant').textContent = 'Montant = —';
+  document.getElementById('pfReste').textContent = 'Reste : —';
+  setPaiement('oui');
+}
+function calculerPesage() {
+  const pt = parseFloat(document.getElementById('pfPoids').value);
+  const ns = parseInt(document.getElementById('pfSacs').value);
+  const pk = parseFloat(document.getElementById('pfPrix').value);
+  if (isNaN(pt) || isNaN(ns) || isNaN(pk)) {
+    document.getElementById('pfResultPoids').textContent = 'Poids net = —';
+    document.getElementById('pfResultMontant').textContent = 'Montant = —';
+    return;
+  }
+  const pn = pt - ns * POIDS_SAC;
+  const montant = pn * pk;
+  document.getElementById('pfResultPoids').textContent = `Poids net = ${pn.toFixed(2)} kg (${pt}−${ns}×${POIDS_SAC})`;
+  document.getElementById('pfResultMontant').textContent = `Montant = ${montant.toLocaleString('fr-FR')} FCFA`;
+  calculerReste();
+}
+function setPaiement(mode) {
+  paiementMode = mode;
+  document.getElementById('payOui').classList.toggle('selected', mode === 'oui');
+  document.getElementById('payNon').classList.toggle('selected', mode === 'non');
+  document.getElementById('partielBlock').classList.toggle('hidden', mode === 'oui');
+}
+function calculerReste() {
+  if (paiementMode !== 'non') return;
+  const pt = parseFloat(document.getElementById('pfPoids').value);
+  const ns = parseInt(document.getElementById('pfSacs').value);
+  const pk = parseFloat(document.getElementById('pfPrix').value);
+  const mp = parseFloat(document.getElementById('pfMontantPaye').value);
+  if (isNaN(pt) || isNaN(ns) || isNaN(pk) || isNaN(mp)) {
+    document.getElementById('pfReste').textContent = 'Reste : —';
+    return;
+  }
+  const montant = (pt - ns * POIDS_SAC) * pk;
+  const reste = montant - mp;
+  document.getElementById('pfReste').textContent = `Reste à payer : ${reste.toLocaleString('fr-FR')} FCFA`;
+}
+function validerPesage() {
+  const pt = parseFloat(document.getElementById('pfPoids').value);
+  const ns = parseInt(document.getElementById('pfSacs').value);
+  const pk = parseFloat(document.getElementById('pfPrix').value);
+  if (isNaN(pt) || isNaN(ns) || isNaN(pk) || pt <= 0 || ns < 0 || pk <= 0) {
+    toast('⚠️ Valeurs invalides');
+    return;
+  }
+  const pn = pt - ns * POIDS_SAC;
+  if (pn <= 0) { toast('⚠️ Poids net négatif ou nul'); return; }
+
+  const montant = pn * pk;
+  let payeTotal = paiementMode === 'oui';
+  let montantPaye, reste;
+  if (payeTotal) { montantPaye = montant; reste = 0; }
+  else {
+    montantPaye = parseFloat(document.getElementById('pfMontantPaye').value);
+    if (isNaN(montantPaye)) { toast('⚠️ Indiquez le montant payé'); return; }
+    reste = montant - montantPaye;
+  }
+
+  const pesage = enregistrerPesage(currentPlanteurPesage.code, currentPlanteurPesage.culture, pt, ns, pk, payeTotal, montantPaye, reste);
+  afficherRecu(pesage);
+  nav('recu');
+}
+
+/* ───────── REÇU ───────── */
+let currentPesageRecu = null;
+
+function afficherRecu(pesage) {
+  currentPesageRecu = pesage;
+  const p = currentPlanteurPesage;
+  const logo = getLogo();
+  const date = new Date(pesage.date);
+  const dateStr = date.toLocaleDateString('fr-FR') + ' ' + date.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+
+  const html = `
+    ${logo ? `<img src="${logo}" class="receipt-logo">` : ''}
+    <div class="r-title">${getNomApp().toUpperCase()}</div>
+    <div class="r-title">REÇU DE PESAGE N° ${String(pesage.id).padStart(5,'0')}</div>
+    <div class="r-sep"></div>
+    Date : ${dateStr}<br>
+    Culture : ${pesage.culture}
+    <div class="r-sep"></div>
+    <b>PLANTEUR</b><br>
+    Code : ${p.code}<br>
+    Nom : ${p.prenom} ${p.nom}<br>
+    Localité : ${p.localite}<br>
+    Téléphone : ${p.telephone}
+    <div class="r-sep"></div>
+    <b>DÉTAIL DU PESAGE</b><br>
+    Poids total : ${pesage.poidsTotal.toFixed(2)} kg<br>
+    Nb de sacs : ${pesage.nbSacs}<br>
+    Déduction : ${(pesage.nbSacs*POIDS_SAC).toFixed(2)} kg<br>
+    Poids net : ${pesage.poidsNet.toFixed(2)} kg<br>
+    Prix au kg : ${pesage.prixKg.toFixed(0)} FCFA
+    <div class="r-sep"></div>
+    <div class="r-amount">${pesage.montant.toLocaleString('fr-FR')} FCFA</div>
+    <div class="r-sep"></div>
+    <b>STATUT DU PAIEMENT</b><br>
+    Paiement total : ${pesage.payeTotal ? 'OUI ✓' : 'NON ✗'}<br>
+    Montant payé : ${pesage.montantPaye.toLocaleString('fr-FR')} FCFA<br>
+    ${!pesage.payeTotal ? `<div class="r-reste">RESTE À PAYER : ${pesage.reste.toLocaleString('fr-FR')} FCFA</div>` : ''}
+    <div class="r-sep"></div>
+    Signature gestionnaire : ____________<br><br>
+    Signature planteur : ____________
+  `;
+  document.getElementById('receiptContent').innerHTML = html;
+}
+function imprimerRecu() {
+  try {
+    window.print();
+    if (currentPesageRecu) retirerRecuAttente(currentPesageRecu.id);
+  } catch (e) {
+    if (currentPesageRecu && currentPlanteurPesage) {
+      ajouterRecuAttente(currentPesageRecu.id, currentPlanteurPesage.code);
+      toast('⚠️ Impression échouée — reçu mis en attente (voir Paramètres)');
+    }
+  }
+}
+function corrigerPesageRecu() {
+  if (!currentPesageRecu) { nav('accueil'); return; }
+  if (!confirm('Ce pesage déjà enregistré sera supprimé pour que vous puissiez ressaisir les bonnes valeurs.\n\nContinuer ?')) return;
+  supprimerPesage(currentPesageRecu.id);
+  retirerRecuAttente(currentPesageRecu.id);
+  nav('pesage-form');
+}
+
+/* ════════════════════════════════════════
+   ESPACE GESTIONNAIRE
+   ════════════════════════════════════════ */
+function gestTab(tab) {
+  currentGestTab = tab;
+  document.querySelectorAll('#bottomNav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('[id^="screen-gest-"]').forEach(s => s.classList.add('hidden'));
+  document.getElementById('screen-gest-' + tab).classList.remove('hidden');
+
+  if (tab === 'classement') renderClassementGeneral();
+  if (tab === 'campagnes') renderCampagnesTab();
+  if (tab === 'bilan') renderBilanTab();
+  if (tab === 'planteurs') renderPlanteursList();
+  if (tab === 'historique') renderHistorique();
+  if (tab === 'stats') renderStatsTab();
+  if (tab === 'parametres') renderParametres();
+}
+
+function renderClassementGeneral() {
+  const rows = getClassementGeneral();
+  const container = document.getElementById('classementList');
+  if (rows.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="ic">🏆</div>Aucun planteur enregistré</div>`;
+    return;
+  }
+  container.innerHTML = rows.map((p, i) => {
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1);
+    return `
+      <div class="rank-row">
+        <div class="rank-medal">${medal}</div>
+        <div class="rank-info">
+          <div class="rname">${p.prenom} ${p.nom}</div>
+          <div class="rsub">${p.code} · ${p.localite} · ${p.culture}</div>
+        </div>
+        <div class="rank-kg">${p.totalKg.toFixed(1)} kg</div>
+      </div>`;
+  }).join('');
+}
+
+function renderCampagnesTab() {
+  const sel = document.getElementById('campCultureSel');
+  sel.innerHTML = CULTURES.map(c => `<option value="${c}">${c}</option>`).join('');
+  majCampagnesSelect();
+}
+function majCampagnesSelect() {
+  const culture = document.getElementById('campCultureSel').value;
+  const campagnes = getCampagnesDisponibles(culture);
+  const sel = document.getElementById('campSelectPeriode');
+  sel.innerHTML = campagnes.map((c, i) => `<option value="${i}">${c.libelle}</option>`).join('');
+  sel.dataset.campagnes = JSON.stringify(campagnes.map(c => ({libelle:c.libelle, debut:c.debut.toISOString(), fin:c.fin.toISOString()})));
+  majClassementCampagne();
+}
+function majClassementCampagne() {
+  const culture = document.getElementById('campCultureSel').value;
+  const sel = document.getElementById('campSelectPeriode');
+  const campagnes = JSON.parse(sel.dataset.campagnes || '[]');
+  const idx = parseInt(sel.value);
+  if (isNaN(idx) || !campagnes[idx]) return;
+  const c = campagnes[idx];
+  const debut = new Date(c.debut), fin = new Date(c.fin);
+  document.getElementById('campPeriodeInfo').textContent =
+    `Période : du ${debut.toLocaleDateString('fr-FR')} au ${fin.toLocaleDateString('fr-FR')}`;
+
+  const rows = getClassementCampagne(culture, debut, fin);
+  const container = document.getElementById('campagneClassementList');
+  if (rows.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="ic">📅</div>Aucun pesage sur cette campagne</div>`;
+    return;
+  }
+  container.innerHTML = rows.map((p, i) => {
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1);
+    return `
+      <div class="rank-row">
+        <div class="rank-medal">${medal}</div>
+        <div class="rank-info">
+          <div class="rname">${p.prenom} ${p.nom}</div>
+          <div class="rsub">${p.code} · ${p.localite} · ${p.nbPesages} pesage(s)</div>
+        </div>
+        <div class="rank-kg">${p.totalKg.toFixed(1)} kg</div>
+      </div>`;
+  }).join('');
+}
+
+function renderBilanTab() {
+  const tabs = [
+    {id:'jour', label:'Jour'}, {id:'semaine', label:'Semaine'}, {id:'mois', label:'Mois'},
+    {id:'annee', label:'Année'}, {id:'campagne', label:'Campagne'}
+  ];
+  document.getElementById('bilanSubtabs').innerHTML = tabs.map((t,i) =>
+    `<button class="${i===0?'active':''}" data-bilan="${t.id}" onclick="bilanSubTab('${t.id}')">${t.label}</button>`
+  ).join('');
+  bilanSubTab('jour');
+}
+function bilanCarte(titre, bilan) {
+  return `
+    <div class="card" style="text-align:center;">
+      <h3>${titre}</h3>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+        <div style="display:flex; justify-content:space-between;"><span>⚖️ Pesages</span><b>${bilan.nbPesages}</b></div>
+        <div style="display:flex; justify-content:space-between;"><span>🛍️ Sacs pesés</span><b>${bilan.totalSacs}</b></div>
+        <div style="display:flex; justify-content:space-between;"><span>📦 Poids net total</span><b>${bilan.totalKg.toFixed(1)} kg</b></div>
+        <div style="display:flex; justify-content:space-between; color:var(--accent2); font-size:16px;"><span>💰 Total payé</span><b>${bilan.totalMontant.toLocaleString('fr-FR')} FCFA</b></div>
+      </div>
+    </div>`;
+}
+function bilanSubTab(tab) {
+  document.querySelectorAll('#bilanSubtabs button').forEach(b => b.classList.toggle('active', b.dataset.bilan === tab));
+  const content = document.getElementById('bilanContent');
+  const today = new Date();
+
+  if (tab === 'jour') {
+    const debut = new Date(today); debut.setHours(0,0,0,0);
+    const fin = new Date(today); fin.setHours(23,59,59,999);
+    const bilan = getBilanPeriode(debut, fin);
+    content.innerHTML = bilanCarte(`📅 Aujourd'hui — ${today.toLocaleDateString('fr-FR')}`, bilan);
+  }
+  else if (tab === 'semaine') {
+    const jourSemaine = today.getDay() === 0 ? 6 : today.getDay() - 1;
+    const debut = new Date(today); debut.setDate(today.getDate() - jourSemaine); debut.setHours(0,0,0,0);
+    const fin = new Date(debut); fin.setDate(debut.getDate() + 6); fin.setHours(23,59,59,999);
+    const bilan = getBilanPeriode(debut, fin);
+    content.innerHTML = bilanCarte(`📅 Semaine du ${debut.toLocaleDateString('fr-FR')} au ${fin.toLocaleDateString('fr-FR')}`, bilan);
+  }
+  else if (tab === 'mois') {
+    content.innerHTML = `
+      <div class="field"><label>Mois / Année</label><input type="month" id="bilanMoisInput" value="${today.toISOString().slice(0,7)}" onchange="majBilanMois()"></div>
+      <div id="bilanMoisResult"></div>`;
+    majBilanMois();
+  }
+  else if (tab === 'annee') {
+    content.innerHTML = `
+      <div class="field"><label>Année</label><input type="number" id="bilanAnneeInput" value="${today.getFullYear()}" onchange="majBilanAnnee()"></div>
+      <div id="bilanAnneeResult"></div>`;
+    majBilanAnnee();
+  }
+  else if (tab === 'campagne') {
+    content.innerHTML = `
+      <div class="field"><label>Culture</label><select id="bilanCultureSel" onchange="majBilanCampagneSelect()">${CULTURES.map(c=>`<option value="${c}">${c}</option>`).join('')}</select></div>
+      <div class="field"><label>Campagne</label><select id="bilanCampagneSel" onchange="majBilanCampagne()"></select></div>
+      <div id="bilanCampagneResult"></div>`;
+    majBilanCampagneSelect();
+  }
+}
+function majBilanMois() {
+  const val = document.getElementById('bilanMoisInput').value;
+  if (!val) return;
+  const [a, m] = val.split('-').map(Number);
+  const debut = new Date(a, m-1, 1);
+  const fin = new Date(a, m, 0, 23,59,59,999);
+  const bilan = getBilanPeriode(debut, fin);
+  const nomsMois = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+  document.getElementById('bilanMoisResult').innerHTML = bilanCarte(`📅 ${nomsMois[m-1]} ${a}`, bilan);
+}
+function majBilanAnnee() {
+  const a = parseInt(document.getElementById('bilanAnneeInput').value);
+  if (!a) return;
+  const debut = new Date(a, 0, 1);
+  const fin = new Date(a, 11, 31, 23,59,59,999);
+  const bilan = getBilanPeriode(debut, fin);
+  document.getElementById('bilanAnneeResult').innerHTML = bilanCarte(`📅 Année ${a}`, bilan);
+}
+function majBilanCampagneSelect() {
+  const culture = document.getElementById('bilanCultureSel').value;
+  const campagnes = getCampagnesDisponibles(culture);
+  const sel = document.getElementById('bilanCampagneSel');
+  sel.innerHTML = campagnes.map((c,i) => `<option value="${i}">${c.libelle}</option>`).join('');
+  sel.dataset.campagnes = JSON.stringify(campagnes.map(c => ({libelle:c.libelle, debut:c.debut.toISOString(), fin:c.fin.toISOString()})));
+  majBilanCampagne();
+}
+function majBilanCampagne() {
+  const culture = document.getElementById('bilanCultureSel').value;
+  const sel = document.getElementById('bilanCampagneSel');
+  const campagnes = JSON.parse(sel.dataset.campagnes || '[]');
+  const idx = parseInt(sel.value);
+  if (isNaN(idx) || !campagnes[idx]) return;
+  const c = campagnes[idx];
+  const debut = new Date(c.debut), fin = new Date(c.fin);
+  const bilan = getBilanPeriode(debut, fin, culture);
+  document.getElementById('bilanCampagneResult').innerHTML =
+    bilanCarte(`📅 ${c.libelle} (${debut.toLocaleDateString('fr-FR')} → ${fin.toLocaleDateString('fr-FR')})`, bilan);
+}
+
+function renderPlanteursList() {
+  const planteurs = db().planteurs;
+  const container = document.getElementById('planteursList');
+  if (planteurs.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="ic">👥</div>Aucun planteur enregistré</div>`;
+    return;
+  }
+  container.innerHTML = planteurs.map(p => `
+    <div class="list-item">
+      <div>
+        <div class="li-main">${p.prenom} ${p.nom}</div>
+        <div class="li-sub">${p.code} · ${p.localite} · 📞 ${p.telephone}</div>
+      </div>
+      <span class="li-tag" style="background:${COULEURS[p.culture]}">${p.culture}</span>
+    </div>
+  `).join('');
+}
+
+function renderHistorique() {
+  const pesages = [...db().pesages].sort((a,b) => new Date(b.date) - new Date(a.date));
+  const table = document.getElementById('historiqueTable');
+  if (pesages.length === 0) {
+    table.innerHTML = '';
+    document.getElementById('screen-gest-historique').querySelector('.table-scroll').innerHTML =
+      `<div class="empty-state"><div class="ic">🔍</div>Aucun pesage enregistré</div>`;
+    return;
+  }
+  table.innerHTML = `
+    <tr><th>Code</th><th>Culture</th><th>Net(kg)</th><th>Sacs</th><th>FCFA</th><th>Date</th></tr>
+    ${pesages.map(p => `
+      <tr>
+        <td>${p.codePlanteur}</td>
+        <td>${p.culture}</td>
+        <td>${p.poidsNet.toFixed(1)}</td>
+        <td>${p.nbSacs}</td>
+        <td>${p.montant.toLocaleString('fr-FR')}</td>
+        <td>${new Date(p.date).toLocaleDateString('fr-FR')}</td>
+      </tr>`).join('')}
+  `;
+}
+
+function renderStatsTab() {
+  const d = db();
+  const totalKg = d.pesages.reduce((s,p) => s + p.poidsNet, 0);
+  const totalFcfa = d.pesages.reduce((s,p) => s + p.montant, 0);
+  document.getElementById('statGlobales').innerHTML = `
+    <div class="stat-card"><div class="val">${d.planteurs.length}</div><div class="lbl">Planteurs</div></div>
+    <div class="stat-card"><div class="val">${d.pesages.length}</div><div class="lbl">Pesages</div></div>
+    <div class="stat-card"><div class="val">${totalKg.toFixed(0)}</div><div class="lbl">Total kg</div></div>
+    <div class="stat-card"><div class="val">${(totalFcfa/1000).toFixed(0)}k</div><div class="lbl">Total FCFA</div></div>
+  `;
+  document.getElementById('statsSubtabs').innerHTML = `
+    <button class="active" data-stat="culture" onclick="statsSubTab('culture')">Par culture</button>
+    <button data-stat="localite" onclick="statsSubTab('localite')">Par localité</button>
+  `;
+  statsSubTab('culture');
+}
+function statsSubTab(tab) {
+  document.querySelectorAll('#statsSubtabs button').forEach(b => b.classList.toggle('active', b.dataset.stat === tab));
+  const content = document.getElementById('statsContent');
+  if (tab === 'culture') {
+    const rows = getStatsParCulture();
+    content.innerHTML = `<div class="table-scroll"><table class="simple">
+      <tr><th>Culture</th><th>Plant.</th><th>Pes.</th><th>Total kg</th><th>FCFA</th></tr>
+      ${rows.map(r => `<tr><td>${r.culture}</td><td>${r.planteurs}</td><td>${r.nbPesages}</td><td>${r.totalKg.toFixed(1)}</td><td>${r.totalFcfa.toLocaleString('fr-FR')}</td></tr>`).join('')}
+    </table></div>`;
+  } else {
+    const rows = getStatsParLocalite();
+    if (rows.length === 0) { content.innerHTML = `<div class="empty-state"><div class="ic">📍</div>Aucune donnée</div>`; return; }
+    content.innerHTML = `<div class="table-scroll"><table class="simple">
+      <tr><th>Localité</th><th>Plant.</th><th>Pes.</th><th>Total kg</th><th>FCFA</th></tr>
+      ${rows.map(r => `<tr><td>${r.localite}</td><td>${r.planteurs}</td><td>${r.nbPesages}</td><td>${r.totalKg.toFixed(1)}</td><td>${r.totalFcfa.toLocaleString('fr-FR')}</td></tr>`).join('')}
+    </table></div>`;
+  }
+}
+
+function renderParametres() {
+  document.getElementById('paramNom').value = getNomApp();
+  const logo = getLogo();
+  document.getElementById('paramLogoPreview').innerHTML = logo ? `<img src="${logo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : '🌿';
+  document.getElementById('paramNewPwd').value = '';
+  if (document.getElementById('paramPwdActuel')) document.getElementById('paramPwdActuel').value = '';
+  if (document.getElementById('paramPwdConfirme')) document.getElementById('paramPwdConfirme').value = '';
+  renderParametresPhotos();
+  renderParametresFond();
+  renderRecusEnAttente();
+}
+
+function renderRecusEnAttente() {
+  const container = document.getElementById('recusAttenteList');
+  if (!container) return;
+  const liste = getRecusEnAttente();
+  if (liste.length === 0) {
+    container.innerHTML = `<div class="hint">✅ Aucun reçu en attente.</div>`;
+    return;
+  }
+  container.innerHTML = liste.map(item => `
+    <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; border-radius:10px; padding:10px 12px; margin-bottom:6px;">
+      <div style="font-size:12.5px;">Pesage #${item.pesageId} — ${item.codePlanteur} — ${item.date}</div>
+      <button class="btn brown" style="width:auto; padding:7px 12px; font-size:12px;" onclick="reimprimerEnAttente(${item.pesageId})">🖨️ Imprimer</button>
+    </div>`).join('');
+}
+function reimprimerEnAttente(pesageId) {
+  retirerRecuAttente(pesageId);
+  renderRecusEnAttente();
+  toast('✅ Reçu marqué comme imprimé');
+}
+
+function sauverNomApp() {
+  const nom = document.getElementById('paramNom').value.trim();
+  if (!nom) { toast('⚠️ Le nom ne peut pas être vide'); return; }
+  setNomApp(nom);
+  toast(`✅ Nom mis à jour : ${nom}`);
+}
+function onLogoSelected(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    setLogo(e.target.result);
+    renderParametres();
+    toast('✅ Logo mis à jour !');
+  };
+  reader.readAsDataURL(file);
+}
+function supprimerLogo() {
+  setLogo(null);
+  renderParametres();
+  toast('Logo retiré');
+}
+function changerMotDePasse() {
+  const actuel = document.getElementById('paramPwdActuel').value;
+  const nouveau = document.getElementById('paramNewPwd').value.trim();
+  const confirme = document.getElementById('paramPwdConfirme').value.trim();
+  if (actuel !== getMotDePasse()) { toast('❌ Mot de passe actuel incorrect'); return; }
+  if (!nouveau || nouveau.length < 4) { toast('⚠️ Le nouveau mot de passe doit faire au moins 4 caractères'); return; }
+  if (nouveau !== confirme) { toast('⚠️ Les deux mots de passe ne correspondent pas'); return; }
+  setMotDePasse(nouveau);
+  document.getElementById('paramPwdActuel').value = '';
+  document.getElementById('paramNewPwd').value = '';
+  document.getElementById('paramPwdConfirme').value = '';
+  toast('✅ Mot de passe mis à jour');
+}
+
+function supprimerPlanteurAction() {
+  const code = document.getElementById('paramCodeSupprimer').value.trim();
+  if (!code) { toast('⚠️ Saisissez un code planteur'); return; }
+  const p = getPlanteurByCode(code);
+  if (!p) { toast(`❌ Aucun planteur trouvé avec le code "${code.toUpperCase()}"`); return; }
+  if (!confirm(`Voulez-vous vraiment supprimer ce planteur ?\n\n${p.prenom} ${p.nom} (${p.code})\n\n⚠️ Son historique de pesage sera aussi supprimé. Action irréversible.`)) return;
+  supprimerPlanteur(code);
+  document.getElementById('paramCodeSupprimer').value = '';
+  toast(`✅ Planteur "${p.code}" supprimé`);
+}
+
+function choisirPhotoCulture(culture, inputEl) {
+  const file = inputEl.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    setPhotoCulture(culture, e.target.result);
+    renderParametresPhotos();
+    toast(`✅ Photo de ${culture} mise à jour`);
+  };
+  reader.readAsDataURL(file);
+}
+function retirerPhotoCultureAction(culture) {
+  retirerPhotoCulture(culture);
+  renderParametresPhotos();
+  toast(`Photo de ${culture} retirée`);
+}
+function renderParametresPhotos() {
+  const container = document.getElementById('paramPhotosCulture');
+  if (!container) return;
+  container.innerHTML = CULTURES.map(c => {
+    const photo = getPhotoCulture(c);
+    return `
+      <div style="display:flex; align-items:center; gap:10px; background:#fff; border-radius:10px; padding:8px 10px; margin-bottom:6px;">
+        <div style="width:40px;height:40px;border-radius:8px;background:${COULEURS[c]};display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+          ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : ''}
+        </div>
+        <div style="flex:1; font-weight:700; font-size:13px;">${c}</div>
+        <input type="file" accept="image/*" id="photoInput_${c}" style="display:none" onchange="choisirPhotoCulture('${c}', this)">
+        <button class="btn brown" style="width:auto; padding:8px 12px; font-size:12px;" onclick="document.getElementById('photoInput_${c}').click()">Choisir</button>
+        <button class="btn red" style="width:auto; padding:8px 10px; font-size:12px;" onclick="retirerPhotoCultureAction('${c}')">✕</button>
+      </div>`;
+  }).join('');
+}
+
+function setFondMode(mode) {
+  document.getElementById('fondCouleurBlock').classList.toggle('hidden', mode !== 'couleur');
+  document.getElementById('fondImageBlock').classList.toggle('hidden', mode !== 'image');
+}
+function onFondImageSelected(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    window._fondImageTemp = e.target.result;
+    document.getElementById('fondImagePreview').innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`;
+  };
+  reader.readAsDataURL(file);
+}
+function appliquerFond() {
+  const mode = document.querySelector('input[name="fondMode"]:checked').value;
+  if (mode === 'couleur') {
+    const couleur = document.getElementById('fondCouleurInput').value;
+    setFondCouleur(couleur);
+  } else {
+    if (!window._fondImageTemp && !getFondConfig().image) { toast('⚠️ Choisissez une image'); return; }
+    setFondImage(window._fondImageTemp || getFondConfig().image);
+  }
+  toast('✅ Fond mis à jour — retournez à l\'accueil');
+}
+function reinitialiserFond() {
+  resetFond();
+  window._fondImageTemp = null;
+  renderParametresFond();
+  toast('Fond réinitialisé');
+}
+function renderParametresFond() {
+  const cfg = getFondConfig();
+  const radios = document.getElementsByName('fondMode');
+  radios.forEach(r => { r.checked = (r.value === cfg.type); });
+  setFondMode(cfg.type);
+  document.getElementById('fondCouleurInput').value = cfg.couleur || '#F5F0E8';
+  const preview = document.getElementById('fondImagePreview');
+  if (preview) {
+    preview.innerHTML = cfg.image ? `<img src="${cfg.image}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">` : 'Aucune image';
+  }
+}
+
+function exportCSV() {
+  const d = db();
+  let csv = "PLANTEURS\nCode,Nom,Prenom,Localite,Telephone,Culture,Date inscription\n";
+  d.planteurs.forEach(p => {
+    csv += `${p.code},${p.nom},${p.prenom},${p.localite},${p.telephone},${p.culture},${p.dateInscription}\n`;
+  });
+  csv += "\nPESAGES\nID,Code,Culture,Poids total,Sacs,Poids net,Prix/kg,Montant,Paye,Date\n";
+  d.pesages.forEach(p => {
+    csv += `${p.id},${p.codePlanteur},${p.culture},${p.poidsTotal},${p.nbSacs},${p.poidsNet},${p.prixKg},${p.montant},${p.payeTotal?'OUI':'NON'},${p.date}\n`;
+  });
+  const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `rapport_${getNomApp()}_${new Date().toISOString().slice(0,10)}.csv`;
+  link.click();
+  toast('✅ Export CSV téléchargé');
+}
+
+/* ───────── UTILITAIRES ───────── */
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2600);
+}
+
+/* ───────── ÉVÉNEMENTS & INIT ───────── */
+document.addEventListener('input', (e) => {
+  if (['pfPoids','pfSacs','pfPrix'].includes(e.target.id)) calculerPesage();
+  if (e.target.id === 'pfMontantPaye') calculerReste();
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  renderCultureStrip();
+  renderAccueil();
+});
+
+</script>
+</body>
+</html>
